@@ -1,2 +1,2 @@
-# KUKA YouBot
-This repo provides a way for a person to run a virtual Kuka YouBot in Coppelia sim and use the provided MatLab program to spin up a GUI (Graphical User Interface) to control the virtual robot remotely. This code could in theory control a real Kuka Youbot should it be configured like it is in CoppeliaSim.
+# Implementation-of-KUKA-youBot-Control-Panel-in-CoppeliaSim-Using-MATLAB
+This project presents a MATLAB-based control panel designed for the KUKA youBot mobile manipulator operating in the CoppeliaSim environment. It provides an intuitive GUI and scripting interface for kinematics, motion planning, and simulation-based validation of robotic algorithms.
