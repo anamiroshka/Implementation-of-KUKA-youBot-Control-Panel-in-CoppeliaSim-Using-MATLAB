@@ -3,9 +3,8 @@ classdef gui < matlab.apps.AppBase
     properties (Access = public)
         UIFigure               matlab.ui.Figure
         GridLayout             matlab.ui.container.GridLayout
-        KUKAYouBotGUILabel     matlab.ui.control.Label
+        TitleLabel             matlab.ui.control.Label
 
-   
         ArmJointsPanel         matlab.ui.container.Panel
         GridLayout2            matlab.ui.container.GridLayout
         J1Label                matlab.ui.control.Label
@@ -19,12 +18,12 @@ classdef gui < matlab.apps.AppBase
         jointFourSlider        matlab.ui.control.Slider
         jointFiveSlider        matlab.ui.control.Slider
 
-        % Gripper panel
         GripperPanel           matlab.ui.container.Panel
         GridLayout5            matlab.ui.container.GridLayout
         GripperSlider          matlab.ui.control.Slider
         GripperOpenButton      matlab.ui.control.Button
         GripperCloseButton     matlab.ui.control.Button
+        GripperStatusLabel     matlab.ui.control.Label
 
         MovementRotationPanel  matlab.ui.container.Panel
         GridLayout4            matlab.ui.container.GridLayout
@@ -33,7 +32,6 @@ classdef gui < matlab.apps.AppBase
         RotationKnob           matlab.ui.control.Knob
         RotationKnobLabel      matlab.ui.control.Label
 
-      
         EStopButton            matlab.ui.control.Button
     end
 
@@ -41,8 +39,6 @@ classdef gui < matlab.apps.AppBase
         sim
         clientID
         handles
-        gripperOpenPos1   % реальная позиция joint1 в открытом состоянии
-        gripperOpenPos2   % реальная позиция joint2 в открытом состоянии
     end
 
     methods (Access = private)
@@ -53,16 +49,14 @@ classdef gui < matlab.apps.AppBase
 
         function setJointTargetPosition(app, index, degrees)
             app.sim.simxSetJointTargetPosition( ...
-                app.clientID, ...
-                app.handles(index), ...
+                app.clientID, app.handles(index), ...
                 deg2rad_(app, degrees), ...
                 app.sim.simx_opmode_oneshot);
         end
 
         function setWheelJointVelocity(app, index, deg_s)
             app.sim.simxSetJointTargetVelocity( ...
-                app.clientID, ...
-                app.handles(index), ...
+                app.clientID, app.handles(index), ...
                 deg2rad_(app, deg_s), ...
                 app.sim.simx_opmode_oneshot);
         end
@@ -73,16 +67,24 @@ classdef gui < matlab.apps.AppBase
             end
         end
 
-    
-        function setGripperPosition(app, value)
+        function sendGripperCommand(app, value)
             value = max(0, min(1, value));
             targetJ2 = -value * 0.050;
-
             app.sim.simxSetFloatSignal(app.clientID, 'gripperTarget', targetJ2, ...
                 app.sim.simx_opmode_oneshot);
 
-            fprintf('[GRIPPER] val=%.2f  targetJ2=%.4f\n', value, targetJ2);
+            if value < 0.05
+                app.GripperStatusLabel.Text = '● Закрыт';
+                app.GripperStatusLabel.FontColor = [0.8 0.2 0.2];
+            elseif value > 0.95
+                app.GripperStatusLabel.Text = '● Открыт';
+                app.GripperStatusLabel.FontColor = [0.15 0.6 0.15];
+            else
+                app.GripperStatusLabel.Text = sprintf('● %.0f%%', value*100);
+                app.GripperStatusLabel.FontColor = [0.1 0.4 0.8];
+            end
         end
+
     end
 
     methods (Access = public)
@@ -93,8 +95,7 @@ classdef gui < matlab.apps.AppBase
             app.jointThreeSlider.Value = 0;
             app.jointFourSlider.Value  = 0;
             app.jointFiveSlider.Value  = 0;
-            
-            app.GripperSlider.Value = 1;
+            app.GripperSlider.Value    = 1;
             app.sim.simxGetPingTime(app.clientID);
             fprintf('GUI ready.\n');
         end
@@ -119,17 +120,21 @@ classdef gui < matlab.apps.AppBase
         end
 
         function GripperSliderValueChanging(app, event)
-            setGripperPosition(app, event.Value);
+            sendGripperCommand(app, event.Value);
+        end
+
+        function GripperSliderValueChanged(app, event)
+            sendGripperCommand(app, event.Value);
         end
 
         function GripperOpenButtonPushed(app, ~)
             app.GripperSlider.Value = 1;
-            setGripperPosition(app, 1);
+            sendGripperCommand(app, 1);
         end
 
         function GripperCloseButtonPushed(app, ~)
             app.GripperSlider.Value = 0;
-            setGripperPosition(app, 0);
+            sendGripperCommand(app, 0);
         end
 
         function EStopButtonPushed(app, ~)
@@ -167,47 +172,61 @@ classdef gui < matlab.apps.AppBase
 
         function createComponents(app)
 
+            bgColor      = [0.12 0.14 0.18];   
+            panelBg      = [0.17 0.20 0.26];   
+            accentBlue   = [0.18 0.52 0.90];  
+            textWhite    = [0.95 0.95 0.95];
+            textGray     = [0.60 0.65 0.72];
+            stopRed      = [0.85 0.15 0.15];
+
             app.UIFigure = uifigure('Visible', 'off');
-            app.UIFigure.Position = [100 100 680 480];
-            app.UIFigure.Name = 'KUKA YouBot';
+            app.UIFigure.Position    = [100 80 760 540];
+            app.UIFigure.Name        = 'ТИКЕТ — Программирование роботов';
+            app.UIFigure.Color       = bgColor;
+            app.UIFigure.Resize      = 'off';
 
             app.GridLayout = uigridlayout(app.UIFigure);
-            app.GridLayout.ColumnWidth   = {'1x', '1x'};
-            app.GridLayout.RowHeight     = {32, '1x', '1x'};
-            app.GridLayout.Padding       = [8 8 8 8];
-            app.GridLayout.RowSpacing    = 6;
-            app.GridLayout.ColumnSpacing = 8;
+            app.GridLayout.ColumnWidth   = {'1.1x', '0.9x'};
+            app.GridLayout.RowHeight     = {44, '1x', '1x'};
+            app.GridLayout.Padding       = [12 10 12 10];
+            app.GridLayout.RowSpacing    = 8;
+            app.GridLayout.ColumnSpacing = 10;
+            app.GridLayout.BackgroundColor = bgColor;
 
-          
-            app.KUKAYouBotGUILabel = uilabel(app.GridLayout);
-            app.KUKAYouBotGUILabel.Text = 'KUKA YouBot — Проект ИМРС';
-            app.KUKAYouBotGUILabel.FontSize   = 16;
-            app.KUKAYouBotGUILabel.FontWeight = 'bold';
-            app.KUKAYouBotGUILabel.HorizontalAlignment = 'left';
-            app.KUKAYouBotGUILabel.Layout.Row    = 1;
-            app.KUKAYouBotGUILabel.Layout.Column = 1;
+            app.TitleLabel = uilabel(app.GridLayout);
+            app.TitleLabel.Text = 'ТИКЕТ  |  ПРОГРАММИРОВАНИЕ РОБОТОВ';
+            app.TitleLabel.FontSize   = 15;
+            app.TitleLabel.FontWeight = 'bold';
+            app.TitleLabel.FontColor  = accentBlue;
+            app.TitleLabel.HorizontalAlignment = 'left';
+            app.TitleLabel.Layout.Row    = 1;
+            app.TitleLabel.Layout.Column = 1;
 
-        
             app.EStopButton = uibutton(app.GridLayout, 'push');
-            app.EStopButton.Text = '⏹  STOP';
-            app.EStopButton.FontWeight = 'bold';
-            app.EStopButton.FontSize   = 13;
-            app.EStopButton.BackgroundColor = [0.85 0.15 0.15];
+            app.EStopButton.Text            = '⏹  СТОП';
+            app.EStopButton.FontWeight      = 'bold';
+            app.EStopButton.FontSize        = 13;
+            app.EStopButton.BackgroundColor = stopRed;
             app.EStopButton.FontColor       = [1 1 1];
             app.EStopButton.ButtonPushedFcn = createCallbackFcn(app, @EStopButtonPushed, true);
             app.EStopButton.Layout.Row    = 1;
             app.EStopButton.Layout.Column = 2;
 
             app.ArmJointsPanel = uipanel(app.GridLayout);
-            app.ArmJointsPanel.Title = 'Arm Joints';
+            app.ArmJointsPanel.Title           = 'Суставы манипулятора';
+            app.ArmJointsPanel.FontSize        = 12;
+            app.ArmJointsPanel.FontWeight      = 'bold';
+            app.ArmJointsPanel.ForegroundColor = textGray;
+            app.ArmJointsPanel.BackgroundColor = panelBg;
             app.ArmJointsPanel.Layout.Row    = 2;
             app.ArmJointsPanel.Layout.Column = 1;
 
             app.GridLayout2 = uigridlayout(app.ArmJointsPanel);
             app.GridLayout2.ColumnWidth   = {'1x','1x','1x','1x','1x'};
-            app.GridLayout2.RowHeight     = {'1x', 18};
-            app.GridLayout2.Padding       = [20 12 20 8];
-            app.GridLayout2.ColumnSpacing = 10;
+            app.GridLayout2.RowHeight     = {'1x', 20};
+            app.GridLayout2.Padding       = [22 14 22 8];
+            app.GridLayout2.ColumnSpacing = 12;
+            app.GridLayout2.BackgroundColor = panelBg;
 
             limits    = [-169 169; -90 75; -131 131; -102 102; -90 90];
             sliderCBs = {@jointOneSliderValueChanging, @jointTwoSliderValueChanging, ...
@@ -221,9 +240,10 @@ classdef gui < matlab.apps.AppBase
                 s = uislider(app.GridLayout2);
                 s.Limits      = limits(k,:);
                 s.Value       = 0;
-                s.MajorTicks  = [];
+                s.MajorTicks  = [limits(k,1) 0 limits(k,2)];
                 s.MinorTicks  = [];
                 s.Orientation = 'vertical';
+                s.FontColor   = textGray;
                 s.ValueChangingFcn = createCallbackFcn(app, sliderCBs{k}, true);
                 s.Layout.Row    = 1;
                 s.Layout.Column = k;
@@ -232,60 +252,91 @@ classdef gui < matlab.apps.AppBase
                 lbl = uilabel(app.GridLayout2);
                 lbl.Text = sprintf('J%d', k);
                 lbl.HorizontalAlignment = 'center';
+                lbl.FontWeight = 'bold';
+                lbl.FontColor  = accentBlue;
+                lbl.FontSize   = 12;
                 lbl.Layout.Row    = 2;
                 lbl.Layout.Column = k;
                 app.(lProp{k}) = lbl;
             end
 
-        
             app.GripperPanel = uipanel(app.GridLayout);
-            app.GripperPanel.Title = 'Gripper';
+            app.GripperPanel.Title           = 'Схват (Gripper)';
+            app.GripperPanel.FontSize        = 12;
+            app.GripperPanel.FontWeight      = 'bold';
+            app.GripperPanel.ForegroundColor = textGray;
+            app.GripperPanel.BackgroundColor = panelBg;
             app.GripperPanel.Layout.Row    = 2;
             app.GripperPanel.Layout.Column = 2;
 
             app.GridLayout5 = uigridlayout(app.GripperPanel);
             app.GridLayout5.ColumnWidth = {'1x', '1x'};
-            app.GridLayout5.RowHeight   = {'1x', 30};
-            app.GridLayout5.Padding     = [14 12 14 10];
+            app.GridLayout5.RowHeight   = {'1x', 22, 32};
+            app.GridLayout5.Padding     = [16 14 16 10];
             app.GridLayout5.RowSpacing  = 8;
+            app.GridLayout5.BackgroundColor = panelBg;
 
             app.GripperSlider = uislider(app.GridLayout5);
             app.GripperSlider.Limits    = [0 1];
-            app.GripperSlider.Value     = 0;
+            app.GripperSlider.Value     = 1;
             app.GripperSlider.MajorTicks = [0 0.5 1];
-            app.GripperSlider.MajorTickLabels = {'Closed','Half','Open'};
+            app.GripperSlider.MajorTickLabels = {'Закрыт', '50%', 'Открыт'};
             app.GripperSlider.MinorTicks = [];
+            app.GripperSlider.FontColor  = textGray;
             app.GripperSlider.ValueChangingFcn = createCallbackFcn(app, @GripperSliderValueChanging, true);
+            app.GripperSlider.ValueChangedFcn  = createCallbackFcn(app, @GripperSliderValueChanged, true);
             app.GripperSlider.Layout.Row    = 1;
             app.GripperSlider.Layout.Column = [1 2];
 
+            % Метка состояния
+            app.GripperStatusLabel = uilabel(app.GridLayout5);
+            app.GripperStatusLabel.Text = '● Открыт';
+            app.GripperStatusLabel.FontSize   = 12;
+            app.GripperStatusLabel.FontWeight = 'bold';
+            app.GripperStatusLabel.FontColor  = [0.15 0.6 0.15];
+            app.GripperStatusLabel.HorizontalAlignment = 'center';
+            app.GripperStatusLabel.Layout.Row    = 2;
+            app.GripperStatusLabel.Layout.Column = [1 2];
+
             app.GripperCloseButton = uibutton(app.GridLayout5, 'push');
-            app.GripperCloseButton.Text = 'Close';
+            app.GripperCloseButton.Text            = 'Закрыть';
+            app.GripperCloseButton.FontWeight      = 'bold';
+            app.GripperCloseButton.FontColor       = [1 1 1];
+            app.GripperCloseButton.BackgroundColor = [0.50 0.18 0.18];
             app.GripperCloseButton.ButtonPushedFcn = createCallbackFcn(app, @GripperCloseButtonPushed, true);
-            app.GripperCloseButton.Layout.Row    = 2;
+            app.GripperCloseButton.Layout.Row    = 3;
             app.GripperCloseButton.Layout.Column = 1;
 
             app.GripperOpenButton = uibutton(app.GridLayout5, 'push');
-            app.GripperOpenButton.Text = 'Open';
+            app.GripperOpenButton.Text            = 'Открыть';
+            app.GripperOpenButton.FontWeight      = 'bold';
+            app.GripperOpenButton.FontColor       = [1 1 1];
+            app.GripperOpenButton.BackgroundColor = [0.12 0.42 0.22];
             app.GripperOpenButton.ButtonPushedFcn = createCallbackFcn(app, @GripperOpenButtonPushed, true);
-            app.GripperOpenButton.Layout.Row    = 2;
+            app.GripperOpenButton.Layout.Row    = 3;
             app.GripperOpenButton.Layout.Column = 2;
 
-           
             app.MovementRotationPanel = uipanel(app.GridLayout);
-            app.MovementRotationPanel.Title = 'Movement & Rotation';
+            app.MovementRotationPanel.Title           = 'Движение базы';
+            app.MovementRotationPanel.FontSize        = 12;
+            app.MovementRotationPanel.FontWeight      = 'bold';
+            app.MovementRotationPanel.ForegroundColor = textGray;
+            app.MovementRotationPanel.BackgroundColor = panelBg;
             app.MovementRotationPanel.Layout.Row    = 3;
             app.MovementRotationPanel.Layout.Column = [1 2];
 
             app.GridLayout4 = uigridlayout(app.MovementRotationPanel);
             app.GridLayout4.ColumnWidth = {'1x','1x'};
-            app.GridLayout4.RowHeight   = {'1x', 20};
-            app.GridLayout4.Padding     = [20 10 20 10];
+            app.GridLayout4.RowHeight   = {'1x', 22};
+            app.GridLayout4.Padding     = [30 12 30 10];
+            app.GridLayout4.BackgroundColor = panelBg;
 
             app.RotationKnobLabel = uilabel(app.GridLayout4);
-            app.RotationKnobLabel.Text = 'Rotation';
+            app.RotationKnobLabel.Text = 'Поворот';
             app.RotationKnobLabel.HorizontalAlignment = 'center';
-            app.RotationKnobLabel.FontSize = 13;
+            app.RotationKnobLabel.FontSize   = 12;
+            app.RotationKnobLabel.FontWeight = 'bold';
+            app.RotationKnobLabel.FontColor  = textGray;
             app.RotationKnobLabel.Layout.Row    = 2;
             app.RotationKnobLabel.Layout.Column = 1;
 
@@ -293,16 +344,19 @@ classdef gui < matlab.apps.AppBase
             app.RotationKnob.Limits = [-180 180];
             app.RotationKnob.MajorTicks = [-180 -90 0 90 180];
             app.RotationKnob.MinorTicks = [];
+            app.RotationKnob.FontColor  = textGray;
+            app.RotationKnob.FontSize   = 11;
             app.RotationKnob.ValueChangedFcn  = createCallbackFcn(app, @RotationKnobValueChanged, true);
             app.RotationKnob.ValueChangingFcn = createCallbackFcn(app, @RotationKnobValueChanging, true);
             app.RotationKnob.Layout.Row    = 1;
             app.RotationKnob.Layout.Column = 1;
-            app.RotationKnob.FontSize = 13;
 
             app.SpeedKnobLabel = uilabel(app.GridLayout4);
-            app.SpeedKnobLabel.Text = 'Speed';
+            app.SpeedKnobLabel.Text = 'Скорость';
             app.SpeedKnobLabel.HorizontalAlignment = 'center';
-            app.SpeedKnobLabel.FontSize = 13;
+            app.SpeedKnobLabel.FontSize   = 12;
+            app.SpeedKnobLabel.FontWeight = 'bold';
+            app.SpeedKnobLabel.FontColor  = textGray;
             app.SpeedKnobLabel.Layout.Row    = 2;
             app.SpeedKnobLabel.Layout.Column = 2;
 
@@ -310,11 +364,12 @@ classdef gui < matlab.apps.AppBase
             app.SpeedKnob.Limits = [-90 180];
             app.SpeedKnob.MajorTicks = [-90 0 90 180];
             app.SpeedKnob.MinorTicks = [];
+            app.SpeedKnob.FontColor  = textGray;
+            app.SpeedKnob.FontSize   = 11;
             app.SpeedKnob.ValueChangedFcn  = createCallbackFcn(app, @SpeedKnobValueChanged, true);
             app.SpeedKnob.ValueChangingFcn = createCallbackFcn(app, @SpeedKnobValueChanging, true);
             app.SpeedKnob.Layout.Row    = 1;
             app.SpeedKnob.Layout.Column = 2;
-            app.SpeedKnob.FontSize = 13;
 
             app.UIFigure.Visible = 'on';
         end
@@ -322,9 +377,6 @@ classdef gui < matlab.apps.AppBase
 
     methods (Access = public)
         function app = gui
-           
-            app.gripperOpenPos1 = 0.025;
-            app.gripperOpenPos2 = -0.025;
             createComponents(app)
             registerApp(app, app.UIFigure)
             if nargout == 0

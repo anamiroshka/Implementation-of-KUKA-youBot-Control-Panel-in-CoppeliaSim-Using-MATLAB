@@ -11,12 +11,10 @@ if clientID > -1
 
     handles = zeros(1, 11);
 
-
     [~, handles(1)] = sim.simxGetObjectHandle(clientID, 'rollingJoint_rr', sim.simx_opmode_blocking);
     [~, handles(2)] = sim.simxGetObjectHandle(clientID, 'rollingJoint_rl', sim.simx_opmode_blocking);
     [~, handles(3)] = sim.simxGetObjectHandle(clientID, 'rollingJoint_fr', sim.simx_opmode_blocking);
     [~, handles(4)] = sim.simxGetObjectHandle(clientID, 'rollingJoint_fl', sim.simx_opmode_blocking);
-
 
     [~, handles(5)]  = sim.simxGetObjectHandle(clientID, 'youBotArmJoint0', sim.simx_opmode_blocking);
     [~, handles(6)]  = sim.simxGetObjectHandle(clientID, 'youBotArmJoint1', sim.simx_opmode_blocking);
@@ -24,7 +22,6 @@ if clientID > -1
     [~, handles(8)]  = sim.simxGetObjectHandle(clientID, 'youBotArmJoint3', sim.simx_opmode_blocking);
     [~, handles(9)]  = sim.simxGetObjectHandle(clientID, 'youBotArmJoint4', sim.simx_opmode_blocking);
 
- 
     handles(10) = -1;
     handles(11) = -1;
 
@@ -65,7 +62,7 @@ if clientID > -1
         end
     end
 
-   
+    % ── Вывод статуса ────────────────────────────────────────────────
     fprintf('\n=== Handle Status ===\n');
     wheelNames = {'rollingJoint_rr','rollingJoint_rl','rollingJoint_fr','rollingJoint_fl'};
     armNames   = {'youBotArmJoint0','youBotArmJoint1','youBotArmJoint2','youBotArmJoint3','youBotArmJoint4'};
