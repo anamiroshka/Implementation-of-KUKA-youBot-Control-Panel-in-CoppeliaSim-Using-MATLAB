@@ -5,7 +5,7 @@ classdef gui < matlab.apps.AppBase
         GridLayout             matlab.ui.container.GridLayout
         KUKAYouBotGUILabel     matlab.ui.control.Label
 
-        % Arm Joints panel
+   
         ArmJointsPanel         matlab.ui.container.Panel
         GridLayout2            matlab.ui.container.GridLayout
         J1Label                matlab.ui.control.Label
@@ -26,7 +26,6 @@ classdef gui < matlab.apps.AppBase
         GripperOpenButton      matlab.ui.control.Button
         GripperCloseButton     matlab.ui.control.Button
 
-        % Movement & Rotation panel
         MovementRotationPanel  matlab.ui.container.Panel
         GridLayout4            matlab.ui.container.GridLayout
         SpeedKnob              matlab.ui.control.Knob
@@ -34,7 +33,7 @@ classdef gui < matlab.apps.AppBase
         RotationKnob           matlab.ui.control.Knob
         RotationKnobLabel      matlab.ui.control.Label
 
-        % Emergency Stop
+      
         EStopButton            matlab.ui.control.Button
     end
 
@@ -74,17 +73,7 @@ classdef gui < matlab.apps.AppBase
             end
         end
 
-        % Gripper: value 0.0 = closed, 1.0 = open
-        % Суставы DYNAMIC — только simxSetJointTargetPosition.
-        % simxSetJointPosition в dynamic mode игнорируется и вызывает дёрганье.
-        % Диапазоны из сцены (p при открытом положении):
-        %   joint1: 0 (closed) .. +0.025 (open)
-        %   joint2: 0 (closed) .. -0.050 (open)
-        % Gripper управляется через модифицированный Lua-скрипт (Rectangle7).
-        % Скрипт читает float сигнал 'gripperTarget' = целевая позиция j2.
-        %   открыто  = -0.050
-        %   закрыто  =  0.000
-        % value: 0.0 = closed, 1.0 = open
+    
         function setGripperPosition(app, value)
             value = max(0, min(1, value));
             targetJ2 = -value * 0.050;
@@ -104,7 +93,7 @@ classdef gui < matlab.apps.AppBase
             app.jointThreeSlider.Value = 0;
             app.jointFourSlider.Value  = 0;
             app.jointFiveSlider.Value  = 0;
-            % Схват стартует открытым — слайдер в 1, команду не шлём
+            
             app.GripperSlider.Value = 1;
             app.sim.simxGetPingTime(app.clientID);
             fprintf('GUI ready.\n');
@@ -189,7 +178,7 @@ classdef gui < matlab.apps.AppBase
             app.GridLayout.RowSpacing    = 6;
             app.GridLayout.ColumnSpacing = 8;
 
-            % Title
+          
             app.KUKAYouBotGUILabel = uilabel(app.GridLayout);
             app.KUKAYouBotGUILabel.Text = 'KUKA YouBot — Проект ИМРС';
             app.KUKAYouBotGUILabel.FontSize   = 16;
@@ -198,7 +187,7 @@ classdef gui < matlab.apps.AppBase
             app.KUKAYouBotGUILabel.Layout.Row    = 1;
             app.KUKAYouBotGUILabel.Layout.Column = 1;
 
-            % E-Stop
+        
             app.EStopButton = uibutton(app.GridLayout, 'push');
             app.EStopButton.Text = '⏹  STOP';
             app.EStopButton.FontWeight = 'bold';
@@ -209,7 +198,6 @@ classdef gui < matlab.apps.AppBase
             app.EStopButton.Layout.Row    = 1;
             app.EStopButton.Layout.Column = 2;
 
-            % Arm Joints panel
             app.ArmJointsPanel = uipanel(app.GridLayout);
             app.ArmJointsPanel.Title = 'Arm Joints';
             app.ArmJointsPanel.Layout.Row    = 2;
@@ -249,7 +237,7 @@ classdef gui < matlab.apps.AppBase
                 app.(lProp{k}) = lbl;
             end
 
-            % Gripper panel
+        
             app.GripperPanel = uipanel(app.GridLayout);
             app.GripperPanel.Title = 'Gripper';
             app.GripperPanel.Layout.Row    = 2;
@@ -283,7 +271,7 @@ classdef gui < matlab.apps.AppBase
             app.GripperOpenButton.Layout.Row    = 2;
             app.GripperOpenButton.Layout.Column = 2;
 
-            % Movement & Rotation panel
+           
             app.MovementRotationPanel = uipanel(app.GridLayout);
             app.MovementRotationPanel.Title = 'Movement & Rotation';
             app.MovementRotationPanel.Layout.Row    = 3;
@@ -334,7 +322,7 @@ classdef gui < matlab.apps.AppBase
 
     methods (Access = public)
         function app = gui
-            % Дефолтные значения до calibration
+           
             app.gripperOpenPos1 = 0.025;
             app.gripperOpenPos2 = -0.025;
             createComponents(app)
