@@ -1,2 +1,9 @@
-# Implementation-of-KUKA-youBot-Control-Panel-in-CoppeliaSim-Using-MATLAB
-This project presents a MATLAB-based control panel designed for the KUKA youBot mobile manipulator operating in the CoppeliaSim environment. It provides an intuitive GUI and scripting interface for kinematics, motion planning, and simulation-based validation of robotic algorithms.
+## Реализация панели управления KUKA YouBot в CoppeliaSim с использованием MATLAB
+Данный проект представляет панель управления на основе MATLAB, разработанную для мобильного манипулятора KUKA YouBot, работающего в среде CoppeliaSim. Панель обеспечивает интуитивно понятный графический интерфейс и программный интерфейс для решения задач кинематики, планирования движений и симуляционной проверки алгоритмов управления роботом.
+## О проекте
+Проект реализует графическую панель управления (GUI) для виртуального робота KUKA YouBot в симуляторе CoppeliaSim. Связь между MATLAB и симулятором осуществляется через Legacy Remote API.
+Панель позволяет управлять в реальном времени:
+- колёсной базой (скорость и поворот),
+- пятью суставами манипуляторной руки,
+- захватом (схватом) с плавным позиционированием.
+## Демонстрация управления 
