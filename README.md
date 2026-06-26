@@ -39,3 +39,41 @@
 | **СТОП** | Мгновенная остановка базы | Обнуление скорости всех колёс |
 | **Статус схвата** | Индикатор: Открыт / Закрыт | Метка в GUI |
 
+## Требования ПО
+
+| Компонент | Версия |
+|---|---|
+| MATLAB | R2020b или новее |
+| CoppeliaSim | 4.x (EDU или PRO) |
+| MATLAB App Designer | входит в MATLAB |
+| Remote API библиотека | `remoteApi.dll` / `remoteApi.dylib` |
+
+## Установка и запуск
+
+### 1. Подготовка CoppeliaSim
+
+```
+1. Открыть файл сцены: Scene/coppeliaScene.ttt
+2. Убедиться что в Scene Hierarchy есть объект youBot
+3. Запустить симуляцию
+```
+### 2. Запуск MATLAB
+
+```matlab
+% В папке проекта:
+main
+```
+
+MATLAB подключится к CoppeliaSim через порт 19999, найдёт все объекты и откроет GUI.
+
+В консоли при успешном подключении:
+```
+Connected to CoppeliaSim
+=== Handle Status ===
+  [OK] rollingJoint_rr = 16
+  [OK] youBotArmJoint0 = 46
+  [OK] gripperJoint1 = "youBotGripperJoint1" (handle 66)
+  ...
+GUI ready.
+```
+
