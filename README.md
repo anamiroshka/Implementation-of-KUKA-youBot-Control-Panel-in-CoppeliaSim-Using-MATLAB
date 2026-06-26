@@ -10,6 +10,7 @@
 | <img src="gifs/Panel_Gripper_Closed.png" width="250"/> | <img src="gifs/Panel_Gripper_Open.png" width="250"/> | <img src="gifs/Arbitrary_Joint_Configuration_Panel.png" width="250"/> |
 |:---:|:---:|:---:|
 | Панель — схват закрыт | Панель — схват открыт | Панель — произвольная конфигурация суставов |
+
 | <img src="gifs/Gripper_Closed.png" width="250"/> | <img src="gifs/Gripper_Open.png" width="250"/> | <img src="gifs/Arbitrary_Joint_Configuration.png" width="250"/> |
 |:---:|:---:|:---:|
 |Схват закрыт | Схват открыт | Произвольная конфигурация суставов |
