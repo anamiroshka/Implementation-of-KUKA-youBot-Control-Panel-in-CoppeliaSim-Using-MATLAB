@@ -69,11 +69,26 @@ MATLAB подключится к CoppeliaSim через порт 19999, найд
 В консоли при успешном подключении:
 ```
 Connected to CoppeliaSim
+
 === Handle Status ===
   [OK] rollingJoint_rr = 16
+  [OK] rollingJoint_rl = 22
+  [OK] rollingJoint_fr = 36
+  [OK] rollingJoint_fl = 30
   [OK] youBotArmJoint0 = 46
-  [OK] gripperJoint1 = "youBotGripperJoint1" (handle 66)
-  ...
-GUI ready.
-```
+  [OK] youBotArmJoint1 = 49
+  [OK] youBotArmJoint2 = 53
+  [OK] youBotArmJoint3 = 58
+  [OK] youBotArmJoint4 = 62
+  [OK]   gripperJoint1 = "youBotGripperJoint1" (handle 66)
+  [OK]   gripperJoint2 = "youBotGripperJoint2" (handle 69)
+=====================
 
+GUI ready.
+Done
+```
+## Заключение
+
+- Реализована функциональная панель управления KUKA YouBot, обеспечивающая полный контроль над роботом в симуляторе CoppeliaSim через MATLAB Remote API
+- Решена задача управления схватом - вместо прямого задания позиции реализована передача целевого значения через float-сигнал `gripperTarget` в Lua child-script, что позволило корректно взаимодействовать с физическим движком Bullet
+- Проект может служить основой для дальнейшего расширения - добавления автоматических траекторий, интеграции с системами технического зрения
