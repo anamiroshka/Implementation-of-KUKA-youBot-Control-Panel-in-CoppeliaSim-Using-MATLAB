@@ -7,6 +7,6 @@
 - пятью суставами манипуляторной руки,
 - захватом (схватом) с плавным позиционированием.
 ## Демонстрация управления 
-| ![](gifs/Panel_Gripper_Closed.png) | ![](gifs/Panel_Gripper_Open.png) | ![](gifs/Arbitrary_Joint_Configuration_Panel.png) |
+| ![](gifs/Panel_Gripper_Closed) | ![](gifs/Panel_Gripper_Open.png) | ![](gifs/Arbitrary_Joint_Configuration_Panel.png) |
 |:---:|:---:|:---:|
 | Панель — схват закрыт | Панель — схват открыт | Панель — произвольная конфигурация суставов |
